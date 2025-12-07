@@ -85,7 +85,7 @@ class ReportsCategory(models.Model):
 	updated_on = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
-		return self.category
+		return self.category 
 
 
 class ReportMaster(models.Model):
