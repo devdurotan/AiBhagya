@@ -1,0 +1,5 @@
+Django>=4.2
+djangorestframework>=3.14
+djangorestframework-simplejwt>=5.2
+drf-yasg>=1.21
+python-decouple>=3.6Pillow>=9.0

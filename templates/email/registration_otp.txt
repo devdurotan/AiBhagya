@@ -1,0 +1,9 @@
+Hello{% if user and user.first_name %} {{ user.first_name }}{% endif %},
+
+Your verification code is: {{ code }}
+This code will expire in {{ expiry_minutes }} minutes.
+
+If you didn't request this, ignore this email.
+
+Thanks,
+AiBhagya Team

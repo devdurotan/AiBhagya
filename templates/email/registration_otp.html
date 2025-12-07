@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
+      padding: 40px;
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .stars {
+      font-size: 40px;
+      margin-bottom: 15px;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+      }
+      50% {
+        opacity: 0.7;
+        text-shadow: 0 0 20px rgba(102, 126, 234, 1);
+      }
+    }
+    h1 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+    .content {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .otp-box {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border: 2px solid #667eea;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .otp-code {
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 8px;
+      color: #667eea;
+      font-family: 'Courier New', monospace;
+      text-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+    }
+    .otp-timer {
+      color: #764ba2;
+      font-size: 14px;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    .message {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 20px 0;
+    }
+    .warning {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px 15px;
+      border-radius: 5px;
+      font-size: 13px;
+      color: #856404;
+      margin: 20px 0;
+    }
+    .zodiac-symbols {
+      font-size: 24px;
+      margin: 20px 0;
+      letter-spacing: 10px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      font-size: 12px;
+      color: #999;
+    }
+    .footer-text {
+      margin: 5px 0;
+    }
+    .divider {
+      height: 2px;
+      background: linear-gradient(to right, transparent, #667eea, transparent);
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="stars">✨🌙✨</div>
+      <h1>AIBhagya</h1>
+      <div class="subtitle">Your Cosmic Journey Begins</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="content">
+      <p class="message">
+        Welcome, dear seeker! The stars have aligned for your verification journey.
+      </p>
+
+      <div class="zodiac-symbols">♈ ♉ ♊ ♋ ♌ ♍</div>
+
+      <p class="message">
+        Please enter the cosmic code below to unlock your celestial portal:
+      </p>
+
+      <div class="otp-box">
+        <div class="otp-code">{{ code }}</div>
+        <div class="otp-timer">⏱️ Valid for {{ expiry_minutes }} minutes</div>
+      </div>
+
+      <div class="warning">
+        🔒 <strong>Security Note:</strong> Never share this code with anyone. 
+        AIBhagya will never ask for your OTP via email or message.
+      </div>
+
+      <p class="message" style="font-size: 13px;">
+        Enter this code at <strong>AIBhagya</strong> to complete your registration.
+      </p>
+    </div>
+
+    <div class="footer">
+      <div class="footer-text">
+        The cosmos protects your privacy 🌟
+      </div>
+      <div class="footer-text" style="color: #bbb; margin-top: 10px;">
+        © 2025 AIBhagya. All rights reserved under the cosmic law.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
