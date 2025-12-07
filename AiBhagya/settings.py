@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from decouple import config, Csv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -169,3 +170,15 @@ AUTH_USER_MODEL = 'apis_v1.UserMaster'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+STATIC_URL = '/static/'
+
+# During development, Django will look for static files here
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # optional if you have a global static folder
+]
+
+# Folder where 'collectstatic' will gather all static files for production
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # only used in production
