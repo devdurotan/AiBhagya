@@ -1,0 +1,64 @@
+# ---> Python / Django
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django Stuff:
+*.log
+*.pot
+*.pyc
+*.mo
+db.sqlite3
+media/
+staticfiles/
+
+# Virtualenv
+env/
+venv/
+ENV/
+.env
+.venv
+
+# Environment Variables
+*.env
+*.env.*
+!.env.example
+
+# Django Migrations (optional, remove this to track migrations)
+*/migrations/__pycache__/
+*/migrations/*.pyc
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Coverage, test reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+*.pytest_cache/
+.pytest_cache/
+
+# Local development settings
+settings_local.py
+
+# Node modules (if Django + React frontend)
+node_modules/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
