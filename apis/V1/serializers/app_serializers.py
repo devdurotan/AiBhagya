@@ -18,3 +18,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = UserMaster.objects.create_user(**validated_data)
         return user
+
+
+
+# #---------add to cart serializer---
+class AddToCartSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    quantity = serializers.IntegerField(required=False, min_value=1, default=1)

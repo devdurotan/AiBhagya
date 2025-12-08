@@ -12,11 +12,13 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from ..serializers.otp_serializers import OtpVerifySerializer
 
-from ..models import UserMaster, OtpCode, ReportsCategory, ReportMaster
-from ..serializers.app_serializers import UserRegistrationSerializer
+from ..models import Cart, UserMaster, OtpCode, ReportsCategory, ReportMaster
+from ..serializers.app_serializers import AddToCartSerializer, UserRegistrationSerializer
 from ..serializers.admin_serializers import ReportsCategorySerializer, ReportMasterSerializer
+from rest_framework.permissions import IsAuthenticated
 
-
+from django.db import transaction
+import pandas as pd
 
 def _generate_otp(n=6):
     return ''.join(str(random.randint(0, 9)) for _ in range(n))
@@ -188,3 +190,129 @@ class ReportMasterListViewSet(viewsets.ReadOnlyModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return create_response(True, 'Data fetched successfully', serializer.data)
+
+
+
+# --------------add to cart api view set---
+class AddToCartApiViewSet(viewsets.GenericViewSet):
+    serializer_class = AddToCartSerializer
+    http_method_names = ['post']
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        payload = request.data
+
+        # Allow single object ⇒ wrap inside a list
+        if isinstance(payload, dict):
+            payload = [payload]
+
+        # Validate payload is a non-empty list
+        if not isinstance(payload, list) or len(payload) == 0:
+            return Response({
+                "status": False,
+                "message": "Invalid payload. Must be list of objects.",
+                "data": None
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        success_items = []
+        error_items = []
+
+        for index, item in enumerate(payload):
+            serializer = AddToCartSerializer(data=item)
+            if not serializer.is_valid():
+                error_items.append({
+                    "index": index,
+                    "payload": item,
+                    "errors": serializer.errors
+                })
+                continue
+
+            report_id = serializer.validated_data["id"]
+            quantity = serializer.validated_data.get("quantity", 1)
+
+            # 1️⃣ Validate report exists
+            try:
+                report = ReportMaster.objects.get(id=report_id)
+            except ReportMaster.DoesNotExist:
+                error_items.append({
+                    "index": index,
+                    "payload": item,
+                    "errors": {"id": "Report not found"}
+                })
+                continue
+
+            # 2️⃣ Create or update cart
+            cart_obj, created = Cart.objects.get_or_create(
+                user=request.user,
+                report=report,
+                defaults={"quantity": quantity}
+            )
+
+            if not created:
+                cart_obj.quantity += quantity
+                cart_obj.save()
+
+            success_items.append({
+                "cart_id": cart_obj.id,
+                "report_id": report.id,
+                "title": report.title,
+                "quantity": cart_obj.quantity
+            })
+
+        return Response({
+            "status": True if success_items else False,
+            "message": "Cart updated successfully." if success_items else "No items added.",
+            "data": {
+                "success": success_items,
+                "errors": error_items
+            }
+        }, status=status.HTTP_200_OK)
+
+
+
+
+# cart details viewSet
+class CartDetailsApiViewSet(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["get"]
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+
+        # Query raw cart items
+        carts = Cart.objects.filter(user=user).select_related(
+            "report",
+            "report__report_category"
+        )
+
+        # Convert queryset → list of dictionaries
+        raw_data = [
+            {
+                "id": c.id,
+                "title": c.report.title,
+                "short_description": c.report.report_category.short_desc,
+                "quantity": c.quantity,
+                "amount": c.amount,     
+            }
+            for c in carts
+        ]
+
+        # Create DataFrame
+        df = pd.DataFrame(raw_data)
+
+        if df.empty:
+            return Response({
+                "status": True,
+                "message": "Cart is empty.",
+                "data": []
+            })
+
+        # Convert df → list of dictionaries
+        final_output = df.to_dict(orient="records")
+
+        return Response({
+            "status": True,
+            "message": "Cart details fetched successfully.",
+            "data": final_output
+        })
