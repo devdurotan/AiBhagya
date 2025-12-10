@@ -52,9 +52,11 @@ INSTALLED_APPS += [
     'drf_yasg',
     # project apps
     'apis.V1',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -197,3 +199,35 @@ STATICFILES_DIRS = [
 
 # Folder where 'collectstatic' will gather all static files for production
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # only used in production
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",     # React
+    "http://localhost:4200",     # Angular
+    "http://127.0.0.1:5500",     # Static HTML
+    "http://localhost:8080",     # Vue
+    "http://127.0.0.1:8000",     # Backend calling itself
+]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]   
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+]

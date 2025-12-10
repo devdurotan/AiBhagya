@@ -104,17 +104,18 @@ class ReportMaster(models.Model):
 
 
 class Cart(models.Model):
-	report = models.ForeignKey(ReportMaster, on_delete=models.CASCADE, related_name='carts')
-	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='carts')
-	quantity = models.PositiveIntegerField(default=1)
-	created_on = models.DateTimeField(auto_now_add=True)
-	updated_on = models.DateTimeField(auto_now=True)
+    report = models.ForeignKey(ReportMaster, on_delete=models.CASCADE, related_name='carts')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='carts')
+    quantity = models.PositiveIntegerField(default=1)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    amount = models.IntegerField(default=0,null=True,blank=True)
 
-	class Meta:
-		unique_together = (('report', 'user'),)
+    class Meta:
+        unique_together = (('report', 'user'),)
 
-	def __str__(self):
-		return f"Cart(user={self.user}, report={self.report}, qty={self.quantity})"
+    def __str__(self):
+        return f"Cart(user={self.user}, report={self.report}, qty={self.quantity})"
 
 
 class OtpCode(models.Model):
