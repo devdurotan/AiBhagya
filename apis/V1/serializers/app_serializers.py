@@ -25,3 +25,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class AddToCartSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     quantity = serializers.IntegerField(required=False, min_value=1, default=1)
+
+
+class CartDetailsSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    short_description = serializers.CharField()
+    quantity = serializers.IntegerField()
+    amount = serializers.FloatField()

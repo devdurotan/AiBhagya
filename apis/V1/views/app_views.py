@@ -13,7 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from ..serializers.otp_serializers import OtpVerifySerializer
 
 from ..models import Cart, UserMaster, OtpCode, ReportsCategory, ReportMaster
-from ..serializers.app_serializers import AddToCartSerializer, UserRegistrationSerializer
+from ..serializers.app_serializers import AddToCartSerializer, UserRegistrationSerializer,CartDetailsSerializer
 from ..serializers.admin_serializers import ReportsCategorySerializer, ReportMasterSerializer
 from rest_framework.permissions import IsAuthenticated
 
@@ -275,6 +275,7 @@ class AddToCartApiViewSet(viewsets.GenericViewSet):
 # cart details viewSet
 class CartDetailsApiViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = CartDetailsSerializer
     http_method_names = ["get"]
 
     def list(self, request, *args, **kwargs):
