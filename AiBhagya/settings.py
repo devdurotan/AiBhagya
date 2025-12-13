@@ -29,7 +29,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-replace-me')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Allow hosts from comma-separated env var, defaults to empty list
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
+ALLOWED_HOSTS = ['127.0.0.1:8000', 'localhost']
 
 
 
@@ -90,26 +90,25 @@ WSGI_APPLICATION = 'AiBhagya.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
 #        'NAME': BASE_DIR / 'db.sqlite3',
 #    }
-#}
+# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'aibhagya_db',
+        'NAME': 'AiBhagya_dev',
         'USER': 'aibhagya_user',
         'PASSWORD': 'StrongPassword@123',
-        'HOST': 'localhost',
+        'HOST': '18.224.34.42',
         'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
     }
 }
+
+
 
 
 
