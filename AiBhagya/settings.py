@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from decouple import config, Csv
+from .db import DATABASES
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -97,16 +98,7 @@ WSGI_APPLICATION = 'AiBhagya.wsgi.application'
 #    }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'AiBhagya_dev',
-        'USER': 'aibhagya_user',
-        'PASSWORD': 'StrongPassword@123',
-        'HOST': '18.224.34.42',
-        'PORT': '3306',
-    }
-}
+
 
 
 
