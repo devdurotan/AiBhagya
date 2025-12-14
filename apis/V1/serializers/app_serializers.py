@@ -23,5 +23,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 # #---------add to cart serializer---
 class AddToCartSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    quantity = serializers.IntegerField(required=False, min_value=1, default=1)
+    report_id = serializers.IntegerField()
+    
+
+
+class CheckCartSerializer(serializers.Serializer):
+    cart_id = serializers.IntegerField()
+
+class GlobalSerializer():
+    pass

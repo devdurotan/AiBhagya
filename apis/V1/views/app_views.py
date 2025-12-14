@@ -12,8 +12,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from ..serializers.otp_serializers import OtpVerifySerializer
 
-from ..models import Cart, UserMaster, OtpCode, ReportsCategory, ReportMaster
-from ..serializers.app_serializers import AddToCartSerializer, UserRegistrationSerializer
+from ..models import Cart, UserGeneratedReport, UserMaster, OtpCode, ReportsCategory, ReportMaster
+from ..serializers.app_serializers import AddToCartSerializer, CheckCartSerializer, GlobalSerializer, UserRegistrationSerializer
 from ..serializers.admin_serializers import ReportsCategorySerializer, ReportMasterSerializer
 from rest_framework.permissions import IsAuthenticated
 
@@ -196,79 +196,47 @@ class ReportMasterListViewSet(viewsets.ReadOnlyModelViewSet):
 # --------------add to cart api view set---
 class AddToCartApiViewSet(viewsets.GenericViewSet):
     serializer_class = AddToCartSerializer
-    http_method_names = ['post']
     permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         payload = request.data
 
-        # Allow single object ⇒ wrap inside a list
+        # single → list
         if isinstance(payload, dict):
             payload = [payload]
 
-        # Validate payload is a non-empty list
-        if not isinstance(payload, list) or len(payload) == 0:
-            return Response({
-                "status": False,
-                "message": "Invalid payload. Must be list of objects.",
-                "data": None
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        success_items = []
-        error_items = []
-
-        for index, item in enumerate(payload):
-            serializer = AddToCartSerializer(data=item)
-            if not serializer.is_valid():
-                error_items.append({
-                    "index": index,
-                    "payload": item,
-                    "errors": serializer.errors
-                })
-                continue
-
-            report_id = serializer.validated_data["id"]
-            quantity = serializer.validated_data.get("quantity", 1)
-
-            # 1️⃣ Validate report exists
-            try:
-                report = ReportMaster.objects.get(id=report_id)
-            except ReportMaster.DoesNotExist:
-                error_items.append({
-                    "index": index,
-                    "payload": item,
-                    "errors": {"id": "Report not found"}
-                })
-                continue
-
-            # 2️⃣ Create or update cart
-            cart_obj, created = Cart.objects.get_or_create(
-                user=request.user,
-                report=report,
-                defaults={"quantity": quantity}
+        if not isinstance(payload, list):
+            return Response(
+                {"detail": "Invalid payload format"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
+        serializer = self.get_serializer(data=payload, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        items = serializer.validated_data
+        user = request.user
+
+        for item in items:
+            report_id = item['report_id']
+
+            cart_obj, created = Cart.objects.get_or_create(
+                user=user,
+                report_id=report_id,
+            )
+
+            # agar pehle se cart me hai → quantity add
             if not created:
-                cart_obj.quantity += quantity
                 cart_obj.save()
 
-            success_items.append({
-                "cart_id": cart_obj.id,
-                "report_id": report.id,
-                "title": report.title,
-                "quantity": cart_obj.quantity
-            })
-
-        return Response({
-            "status": True if success_items else False,
-            "message": "Cart updated successfully." if success_items else "No items added.",
-            "data": {
-                "success": success_items,
-                "errors": error_items
-            }
-        }, status=status.HTTP_200_OK)
-
+        return Response(
+            {   "status": True,
+                "message": "Reports added to cart successfully"
+            },
+            status=status.HTTP_201_CREATED
+        )
 
 
 
@@ -279,6 +247,7 @@ class CartDetailsApiViewSet(viewsets.GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         user = request.user
+        print(user)
 
         # Query raw cart items
         carts = Cart.objects.filter(user=user).select_related(
@@ -314,5 +283,123 @@ class CartDetailsApiViewSet(viewsets.GenericViewSet):
         return Response({
             "status": True,
             "message": "Cart details fetched successfully.",
+            "data": final_output
+        })
+    
+
+
+class CheckCart(viewsets.GenericViewSet):
+    serializer_class = CheckCartSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        cart_id = request.data.get('cart_id')
+        cart = Cart.objects.filter(id=cart_id, user=user).last()
+        if not cart:
+            return Response(
+                {   "status": False,
+                    "message": "Cart not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if cart.is_checked:
+            cart.is_checked = False
+            message = "Report unselected."
+        else:
+            cart.is_checked = True
+            message = "Report selected."
+        cart.save()
+
+        return Response(
+            {   "status": True,
+                "message": message
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+
+
+class UnwindFutureViewset(viewsets.GenericViewSet):
+    serializer_class = GlobalSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        cart = Cart.objects.filter(user=user, is_checked=True).all()
+        if not cart:
+            return Response(
+            {   "status": True,
+                "message": "Report not found."
+            },
+            status=status.HTTP_200_OK
+        )
+
+        for item in cart:
+            user_report = UserGeneratedReport()
+            user_report.user = user
+            user_report.report = item.report
+            user_report.report_category = item.report.report_category
+            user_report.amount = item.report.price
+            user_report.credit = item.report.price
+            user_report.save()
+
+        cart.delete()
+        
+
+        return Response(
+            {   "status": True,
+                "message": "Reports generated successfully"
+            },
+            status=status.HTTP_201_CREATED
+        )
+    
+
+
+class UserReportsApiViewSet(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["get"]
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        print(user)
+
+        # Query raw cart items
+        user_reports = UserGeneratedReport.objects.filter(user=user).select_related(
+            "report",
+            "report__report_category",
+            "user",
+        )
+
+        # Convert queryset → list of dictionaries
+        raw_data = [
+            {
+                "id": report.id,
+                "title": report.report.title,
+                "amount": report.amount,     
+            }
+            for report in user_reports
+        ]
+
+        # Create DataFrame
+        df = pd.DataFrame(raw_data)
+
+        if df.empty:
+            return Response({
+                "status": True,
+                "message": "Section is empty.",
+                "data": []
+            })
+
+        # Convert df → list of dictionaries
+        final_output = df.to_dict(orient="records")
+
+        return Response({
+            "status": True,
+            "message": "Data fetched successfully.",
             "data": final_output
         })

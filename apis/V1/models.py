@@ -90,18 +90,19 @@ class ReportsCategory(models.Model):
 
 
 class ReportMaster(models.Model):
-	report_category = models.ForeignKey(ReportsCategory, on_delete=models.CASCADE, related_name='reports')
-	title = models.CharField(max_length=255)
-	description = models.TextField(blank=True, null=True)
-	# File field for report attachments
-	file = models.FileField(upload_to='reports/', blank=True, null=True)
-	is_deleted = models.BooleanField(default=False)
-	is_active = models.BooleanField(default=True)
-	created_on = models.DateTimeField(auto_now_add=True)
-	updated_on = models.DateTimeField(auto_now=True)
+    report_category = models.ForeignKey(ReportsCategory, on_delete=models.CASCADE, related_name='reports')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    # File field for report attachments
+    file = models.FileField(upload_to='reports/', blank=True, null=True)
+    is_deleted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    price = models.CharField(max_length=50, blank=True)
 
-	def __str__(self):
-		return self.title
+    def __str__(self):
+        return self.title
 
 
 class Cart(models.Model):
@@ -111,6 +112,7 @@ class Cart(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     amount = models.IntegerField(default=0,null=True,blank=True)
+    is_checked = models.BooleanField(default=True)
 
     class Meta:
         unique_together = (('report', 'user'),)
@@ -131,3 +133,21 @@ class OtpCode(models.Model):
 
     def __str__(self):
         return f"Otp(email={self.email}, code={self.code})"
+
+class UserGeneratedReport(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='generated_reports_user')
+    report = models.ForeignKey(ReportMaster, on_delete=models.CASCADE, related_name='generated_reports_id')
+    report_category = models.ForeignKey(ReportsCategory, on_delete=models.CASCADE, related_name='generated_reports_category_id')
+    is_locked = models.BooleanField(default=True)
+    unlocked_mode = models.CharField(max_length=100, blank=True, null=True)
+    unlocked_on = models.DateTimeField(null=True, blank=True)
+    ads_count = models.IntegerField(default=0)
+    ads_duration = models.IntegerField(default=0)  # in seconds
+    amount = models.IntegerField(default=0)
+    credit = models.IntegerField(default=0)
+    paid_amount = models.IntegerField(default=0)
+    credits_used = models.IntegerField(default=0)
+    generated_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
+    
