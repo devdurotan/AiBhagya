@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import ReportsCategory, ReportMaster
+from ..models import ReportsCategory, ReportMaster, UserMaster
 
 
 class ReportsCategorySerializer(serializers.ModelSerializer):
@@ -64,3 +64,9 @@ class ReportMasterSerializer(serializers.ModelSerializer):
         if data.get('is_active') and data.get('is_deleted'):
             raise serializers.ValidationError("A report cannot be both active and deleted.")
         return data
+
+
+class UserMasterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserMaster
+        fields = ('id', 'first_name', 'last_name', 'full_name', 'email', 'is_active', 'is_deleted')

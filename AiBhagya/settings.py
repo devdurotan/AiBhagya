@@ -29,7 +29,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-replace-me')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Allow hosts from comma-separated env var, defaults to empty list
-ALLOWED_HOSTS = ['127.0.0.1:8000', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '18.224.34.42',]
 
 
 
