@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import ReportsCategory, ReportMaster, UserMaster
+from ..models import Ad, ReportsCategory, ReportMaster, UserMaster
 
 
 class ReportsCategorySerializer(serializers.ModelSerializer):
@@ -70,3 +70,17 @@ class UserMasterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserMaster
         fields = ('id', 'first_name', 'last_name', 'full_name', 'email', 'is_active', 'is_deleted')
+
+
+
+class AdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ad
+        fields = [
+            'id',
+            'title',
+            'video',
+            'duration',
+            'is_active',
+            'created_on'
+        ]

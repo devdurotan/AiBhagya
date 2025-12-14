@@ -3,8 +3,10 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from ..models import ReportsCategory, ReportMaster, UserMaster
-from ..serializers.admin_serializers import ReportsCategorySerializer, ReportMasterSerializer, UserMasterSerializer
+from ..models import Ad, ReportsCategory, ReportMaster, UserMaster
+from ..serializers.admin_serializers import AdSerializer, ReportsCategorySerializer, ReportMasterSerializer, UserMasterSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.viewsets import ModelViewSet
 
 
 class IsAdminUser(permissions.BasePermission):
@@ -95,3 +97,7 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(instance)
         return create_response(True, 'Data fetched successfully', serializer.data)
 
+class AdViewSet(ModelViewSet):
+    queryset = Ad.objects.all()
+    serializer_class = AdSerializer
+    parser_classes = [MultiPartParser, FormParser]

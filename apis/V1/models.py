@@ -150,4 +150,22 @@ class UserGeneratedReport(models.Model):
     generated_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
-    
+class Ad(models.Model):
+    title = models.CharField(max_length=100)
+    video = models.FileField(upload_to="ads/")
+    duration = models.PositiveIntegerField(help_text="Duration in seconds")
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+
+class AdWatch(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    report = models.ForeignKey(ReportMaster, on_delete=models.CASCADE)
+    ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
+    watched_seconds = models.PositiveIntegerField(default=0)
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
