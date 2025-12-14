@@ -228,10 +228,12 @@ class AddToCartApiViewSet(viewsets.GenericViewSet):
 
         for item in items:
             report_id = item['report_id']
+            rep = ReportMaster.objects.filter(id=em['report_id']).last()
 
             cart_obj, created = Cart.objects.get_or_create(
                 user=user,
                 report_id=report_id,
+                amount= rep.price
             )
 
             # agar pehle se cart me hai → quantity add
