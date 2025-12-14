@@ -263,6 +263,7 @@ class CartDetailsApiViewSet(viewsets.GenericViewSet):
                 "short_description": c.report.report_category.short_desc,
                 "quantity": c.quantity,
                 "amount": c.amount,     
+                "is_checked": c.is_checked,     
             }
             for c in carts
         ]
