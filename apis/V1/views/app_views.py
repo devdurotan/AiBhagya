@@ -10,12 +10,19 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from apis.V1.utils.app_utils import get_ads_for_report
 from ..serializers.otp_serializers import OtpVerifySerializer
 
 from ..models import Cart, UserGeneratedReport, UserMaster, OtpCode, ReportsCategory, ReportMaster
 from ..serializers.app_serializers import AddToCartSerializer, CheckCartSerializer, GlobalSerializer, UserRegistrationSerializer
-from ..serializers.admin_serializers import ReportsCategorySerializer, ReportMasterSerializer
+from ..serializers.admin_serializers import AdSerializer, ReportsCategorySerializer, ReportMasterSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404 
+
 
 from django.db import transaction
 import pandas as pd
@@ -373,7 +380,7 @@ class UserReportsApiViewSet(viewsets.GenericViewSet):
         user_reports = UserGeneratedReport.objects.filter(user=user).select_related(
             "report",
             "report__report_category",
-            "user",
+            "user"
         )
 
         # Convert queryset → list of dictionaries
@@ -381,7 +388,8 @@ class UserReportsApiViewSet(viewsets.GenericViewSet):
             {
                 "id": report.id,
                 "title": report.report.title,
-                "amount": report.amount,     
+                "amount": report.amount, 
+                "image": report.report.file.url    
             }
             for report in user_reports
         ]
@@ -403,4 +411,39 @@ class UserReportsApiViewSet(viewsets.GenericViewSet):
             "status": True,
             "message": "Data fetched successfully.",
             "data": final_output
+        })
+    
+
+
+class ReportAdsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, report_id):
+        report = get_object_or_404(ReportMaster, id=report_id)
+
+        # already unlocked?
+        unlocked = UserGeneratedReport.objects.filter(
+            user=request.user,
+            report=report,
+            is_locked=False
+        ).exists()
+
+        if unlocked:
+            return Response({
+                "locked": False,
+                "message": "Report already unlocked"
+            })
+
+        ads = get_ads_for_report(request.user, report)
+
+        if not ads:
+            return Response({
+                "locked": True,
+                "message": "No ads available right now"
+            })
+
+        return Response({
+            "locked": True,
+            "ads_required": settings.ADS_REQUIRED_PER_REPORT,
+            "ads": AdSerializer(ads, many=True).data
         })
