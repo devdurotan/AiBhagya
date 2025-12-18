@@ -459,6 +459,7 @@ class ReportAdsAPIView(APIView):
 from django.db.models import Sum
 
 class AdWatchCompleteAPIView(APIView):
+    
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -506,3 +507,45 @@ class AdWatchCompleteAPIView(APIView):
             "ads_completed_count": completed_ads,
             "report_unlocked": unlocked
         })
+
+
+class OfferViewsets(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["get"]
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        print(user)
+
+        # Query raw cart items
+        c = ReportMaster.objects.filter(is_deleted=True, is_active=False).last()
+
+        # Convert queryset → list of dictionaries
+        raw_data = [
+            {
+                "id": c.id,
+                "title": c.title,
+                "short_description": c.short_desc,   
+            }
+            
+        ]
+
+        # Create DataFrame
+        df = pd.DataFrame(raw_data)
+
+        if df.empty:
+            return Response({
+                "status": True,
+                "message": "Dataset is empty.",
+                "data": []
+            })
+
+        # Convert df → list of dictionaries
+        final_output = df.to_dict(orient="records")
+
+        return Response({
+            "status": True,
+            "message": "",
+            "data": final_output
+        })
+    
