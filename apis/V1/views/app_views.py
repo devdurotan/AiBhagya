@@ -384,7 +384,6 @@ class UserReportsApiViewSet(viewsets.GenericViewSet):
             "report",
             "report__report_category",
             "user",
-            "is_locked",
 
 
         )
