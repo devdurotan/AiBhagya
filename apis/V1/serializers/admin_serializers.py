@@ -84,3 +84,7 @@ class AdSerializer(serializers.ModelSerializer):
             'is_active',
             'created_on'
         ]
+
+class AdWatchUpdateSerializer(serializers.Serializer):
+    report_id = serializers.IntegerField()
+    ad_id = serializers.IntegerField()

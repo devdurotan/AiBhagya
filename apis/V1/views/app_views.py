@@ -15,9 +15,9 @@ from AiBhagya.settings import BASE_URL
 from apis.V1.utils.app_utils import get_ads_for_report
 from ..serializers.otp_serializers import OtpVerifySerializer
 
-from ..models import Cart, UserGeneratedReport, UserMaster, OtpCode, ReportsCategory, ReportMaster
+from ..models import Ad, AdWatch, Cart, UserGeneratedReport, UserMaster, OtpCode, ReportsCategory, ReportMaster
 from ..serializers.app_serializers import AddToCartSerializer, CheckCartSerializer, GlobalSerializer, UserRegistrationSerializer
-from ..serializers.admin_serializers import AdSerializer, ReportsCategorySerializer, ReportMasterSerializer
+from ..serializers.admin_serializers import AdSerializer, AdWatchUpdateSerializer, ReportsCategorySerializer, ReportMasterSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -454,4 +454,55 @@ class ReportAdsAPIView(APIView):
             "locked": True,
             "ads_required": settings.ADS_REQUIRED_PER_REPORT,
             "ads": AdSerializer(ads, many=True).data
+        })
+
+from django.db.models import Sum
+
+class AdWatchCompleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = AdWatchUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        report = get_object_or_404(ReportMaster, id=serializer.validated_data['report_id'])
+        ad = get_object_or_404(Ad, id=serializer.validated_data['ad_id'], is_active=True)
+
+        # ✅ Track ad for this report + user
+        ad_watch, created = AdWatch.objects.get_or_create(
+            user=user,
+            report=report,
+            ad=ad
+        )
+
+        # Mark ad completed
+        ad_watch.completed = True
+        ad_watch.watched_seconds = ad.duration  # full duration
+        ad_watch.save()
+
+        # ✅ Check if report should unlock
+        completed_ads = AdWatch.objects.filter(
+            user=user,
+            report=report,
+            completed=True
+        ).count()
+
+        unlocked = False
+        ugr = UserGeneratedReport.objects.filter(user_id=request.user.id, report_id=serializer.validated_data['report_id']).last()
+        ugr.ads_count=completed_ads
+        if completed_ads >= 3:
+            ugr.is_locked=False
+            ugr.unlocked_mode="Ads"
+            ugr.unlocked_on = datetime.datetime.now()
+            ugr.ads_count=3
+            ugr.ads_duration = AdWatch.objects.filter(user=user, report=report).aggregate(total=Sum('watched_seconds'))['total'] or 0
+            ugr.credits_used=9
+            ugr.save()
+        unlocked = True
+
+        return Response({
+            "ad_completed": True,
+            "ads_completed_count": completed_ads,
+            "report_unlocked": unlocked
         })

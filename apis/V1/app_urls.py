@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views.app_views import CheckCart, RegistrationViewSet, ReportAdsAPIView, ReportsCategoryListViewSet, ReportMasterListViewSet, OtpVerifyViewSet,AddToCartApiViewSet,CartDetailsApiViewSet, UnwindFutureViewset, UserReportsApiViewSet
+from .views.app_views import AdWatchCompleteAPIView, CheckCart, RegistrationViewSet, ReportAdsAPIView, ReportsCategoryListViewSet, ReportMasterListViewSet, OtpVerifyViewSet,AddToCartApiViewSet,CartDetailsApiViewSet, UnwindFutureViewset, UserReportsApiViewSet
 
 router = DefaultRouter()
 router.register(r'register', RegistrationViewSet, basename='register')
@@ -18,6 +18,8 @@ router.register('user_reports',UserReportsApiViewSet,basename='user_reports')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('reports/<int:report_id>/ads/',ReportAdsAPIView.as_view(),name='report-ads')
+    path('reports/<int:report_id>/ads/',ReportAdsAPIView.as_view(),name='report-ads'),
+    path('ad-watch/complete/', AdWatchCompleteAPIView.as_view(), name='ad-watch-complete')
+
 
 ]
