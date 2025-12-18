@@ -197,9 +197,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",     # Static HTML
     "http://localhost:8080",     # Vue
     "http://127.0.0.1:8000",     # Backend calling itself
-    "aibhagya.vercel.app",
-    "18.224.34.42",
-    
+    "https://aibhagya.vercel.app/",
+    "http://18.224.34.42",
+
 
 ]
 
