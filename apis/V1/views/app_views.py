@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from AiBhagya.settings import BASE_URL
 from apis.V1.utils.app_utils import get_ads_for_report
 from ..serializers.otp_serializers import OtpVerifySerializer
 
@@ -26,7 +27,7 @@ from django.shortcuts import get_object_or_404
 
 from django.db import transaction
 import pandas as pd
-
+import datetime
 def _generate_otp(n=6):
     return ''.join(str(random.randint(0, 9)) for _ in range(n))
 
@@ -382,16 +383,21 @@ class UserReportsApiViewSet(viewsets.GenericViewSet):
         user_reports = UserGeneratedReport.objects.filter(user=user).select_related(
             "report",
             "report__report_category",
-            "user"
+            "user",
+            "is_locked",
+
+
         )
 
         # Convert queryset → list of dictionaries
         raw_data = [
             {
                 "id": report.id,
-                "title": report.report.title,
+                "title": f"{request.user.full_name}_{report.report.title}_{datetime.datetime.now()}",
                 "amount": report.amount, 
-                "image": report.report.file.url    
+                "image": f"{BASE_URL}{report.report.file.url}",
+                "is_locked":report.is_locked 
+
             }
             for report in user_reports
         ]
