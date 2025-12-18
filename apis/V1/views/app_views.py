@@ -395,7 +395,8 @@ class UserReportsApiViewSet(viewsets.GenericViewSet):
                 "title": f"{request.user.full_name}_{report.report.title}_{datetime.datetime.now()}",
                 "amount": report.amount, 
                 "image": f"{BASE_URL}{report.report.file.url}",
-                "is_locked":report.is_locked 
+                "is_locked":report.is_locked,
+                "report_id":report.id
 
             }
             for report in user_reports
