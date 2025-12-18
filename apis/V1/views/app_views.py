@@ -396,7 +396,7 @@ class UserReportsApiViewSet(viewsets.GenericViewSet):
                 "amount": report.amount, 
                 "image": f"{BASE_URL}{report.report.file.url}",
                 "is_locked":report.is_locked,
-                "report_id":report.id
+                "report_id":report.report.id
 
             }
             for report in user_reports
