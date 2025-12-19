@@ -525,7 +525,7 @@ class OfferViewsets(viewsets.GenericViewSet):
             {
                 "id": c.id,
                 "title": c.title,
-                "short_description": c.short_desc,   
+                "short_description": c.description,   
             }
             
         ]
