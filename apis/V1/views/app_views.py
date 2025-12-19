@@ -510,7 +510,7 @@ class AdWatchCompleteAPIView(APIView):
 
 
 class OfferViewsets(viewsets.GenericViewSet):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     http_method_names = ["get"]
 
     def list(self, request, *args, **kwargs):
