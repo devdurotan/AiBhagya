@@ -29,10 +29,9 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-replace-me')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-# Allow hosts from comma-separated env var, defaults to empty list
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '18.224.34.42','aibhgya.com','www.aibhgya.com','3.135.211.164'] + config('ALLOWED_HOSTS', default='', cast=Csv())
-
-
+# # Allow hosts from comma-separated env var, defaults to empty list
+# ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '18.224.34.42','aibhgya.com','www.aibhgya.com','3.135.211.164'] + config('ALLOWED_HOSTS', default='', cast=Csv())
+ALLOWED_HOSTS = ['*']
 
 # Swagger settings for Bearer token authentication
 from .swagger_settings import SWAGGER_SETTINGS
